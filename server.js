@@ -10,7 +10,7 @@ app.use(cors());
 const createCheckoutSession = require('./endpoints/createCheckoutSession/createCheckoutSession');
 const createCheckoutSessionMainstream = require('./endpoints/createCheckoutSessionMainstream/createCheckoutSessionMainstream');
 const bitewiContact = require('./endpoints/bitewiContact/bitewiContact');
-const bitewiContact = require('./endpoints/iwsContact/iwsContact');
+const iwsContact = require('./endpoints/iwsContact/iwsContact');
 
 app.use('/create-checkout-session', createCheckoutSession);
 app.use('/create-checkout-session-mainstream', createCheckoutSessionMainstream);
