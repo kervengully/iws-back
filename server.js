@@ -12,10 +12,19 @@ const createCheckoutSessionMainstream = require('./endpoints/createCheckoutSessi
 const bitewiContact = require('./endpoints/bitewiContact/bitewiContact');
 const iwsContact = require('./endpoints/iwsContact/iwsContact');
 
-app.use('/create-checkout-session', createCheckoutSession);
-app.use('/create-checkout-session-mainstream', createCheckoutSessionMainstream);
-app.use('/bitewi-contact', bitewiContact);
-app.use('/iws-contact', iwsContact);
+const safeEndpoint = (handler) => async (req, res, next) => {
+  try {
+    await handler(req, res, next);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ error: 'An error occurred' });
+  }
+};
+
+app.use('/create-checkout-session', safeEndpoint(createCheckoutSession));
+app.use('/create-checkout-session-mainstream', safeEndpoint(createCheckoutSessionMainstream));
+app.use('/bitewi-contact', safeEndpoint(bitewiContact));
+app.use('/iws-contact', safeEndpoint(iwsContact));
 
 const PORT = process.env.PORT || 3500;
 app.listen(PORT, () => {
