@@ -17,5 +17,5 @@ app.use('/bitewi-contact', bitewiContact);
 
 const PORT = process.env.PORT || 3500;
 app.listen(PORT, () => {
-  console.log(`Server is running on porrt ${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });
