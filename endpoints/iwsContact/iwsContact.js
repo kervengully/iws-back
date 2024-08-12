@@ -89,7 +89,7 @@ const sendEmailNotification = async (webhookData) => {
 
 router.post("/", async (req, res) => {
   const webhookData = req.body;
-  console.log("Received webhook:", webhookData);
+  console.log("Received webhook data:", webhookData);
 
   try {
     // Login to Salesforce
