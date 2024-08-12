@@ -1,9 +1,11 @@
 require('dotenv').config();
 const express = require('express');
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY_TEST);
 const nodemailer = require("nodemailer");
+const bodyParser = require('body-parser');
 const router = express.Router();
 
+// Handle POST requests to the root of the router
 router.post("/", async (req, res) => {
   const { data } = req.body;
   data.totalPrice = parseFloat(data.totalPrice);
