@@ -31,7 +31,7 @@ app.use('/webhook', webhook); // This route now expects a raw body, so don't use
 app.use('/bitewi-contact', bodyParser.json(), safeEndpoint(bitewiContact));
 app.use('/iws-contact', bodyParser.json(), safeEndpoint(iwsContact));
 
-const PORT = process.env.PORT || 4242;
+const PORT = process.env.PORT || 3500;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
