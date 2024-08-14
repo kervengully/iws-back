@@ -1,6 +1,6 @@
 require('dotenv').config();
 const express = require('express');
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY_TEST);
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const nodemailer = require("nodemailer");
 const bodyParser = require('body-parser');
 const router = express.Router();
