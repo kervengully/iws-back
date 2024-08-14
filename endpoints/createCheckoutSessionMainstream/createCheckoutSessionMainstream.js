@@ -101,65 +101,21 @@ router.post("/", async (req, res) => {
 
     await loginToSalesforce();
 
-    const accountData = {
-      Name: data.parent.firstName + ' ' + data.parent.lastName,
-      Phone: data.parent.phone,
-      BillingStreet: data.parent.address,
-      BillingCity: data.parent.city,
-      BillingState: '',  // Add if needed
-      BillingPostalCode: data.parent.postalCode,
-      BillingCountry: data.parent.country,
-      Email: data.parent.email,
-    };
-
-    const contactData = {
-      FirstName: data.student.firstName,
-      LastName: data.student.lastName,
-      Email: data.student.email,
-      Phone: data.student.phone,
-      Birthdate: data.student.dob,
-      MailingStreet: '',  // Add if needed
-      MailingCity: '',    // Add if needed
-      MailingState: '',   // Add if needed
-      MailingPostalCode: '',  // Add if needed
-      MailingCountry: data.student.country,
-      AccountId: '', // Will be set after creating account
-    };
-
-    // Create Account
-    const accountResult = await conn.sobject("Account").create(accountData);
-    if (accountResult.success) {
-      console.log("Account created with ID: ", accountResult.id);
-      contactData.AccountId = accountResult.id;
-    } else {
-      console.error("Salesforce Account creation error:", accountResult.errors);
-      return res.status(500).send("Salesforce Account creation error");
-    }
-
-    // Create Contact
-    const contactResult = await conn.sobject("Contact").create(contactData);
-    if (!contactResult.success) {
-      console.error("Salesforce Contact creation error:", contactResult.errors);
-      return res.status(500).send("Salesforce Contact creation error");
-    }
-    console.log("Contact created with ID: ", contactResult.id);
-
     const opportunityData = {
-      Name: `Opportunity for ${data.student.firstName} ${data.student.lastName}`,
+      Name: `Opportunity for`,
       StageName: 'Registration Completed',
       CloseDate: new Date().toISOString().split('T')[0],
       Amount: data.totalPrice,
-      Description: JSON.stringify(data),
-      AccountId: accountResult.id,  // Link Opportunity to the Account
+      Description: JSON.stringify(data)
     };
 
-    const opportunityResult = await conn.sobject("Opportunity").create(opportunityData);
-    if (opportunityResult.success) {
-      console.log("Opportunity created with ID: ", opportunityResult.id);
-    } else {
-      console.error("Salesforce Opportunity creation error:", opportunityResult.errors);
-      return res.status(500).send("Salesforce Opportunity creation error");
-    }
+    conn.sobject("Opportunity").create(opportunityData, function(err, result) {
+      if (err || !result.success) {
+        console.error("Salesforce Opportunity creation error:", err);
+        return res.status(500).send("Salesforce Opportunity creation error");
+      }
+      console.log("Opportunity created with ID: ", result.id);
+    });
 
     res.json({ url: session.url });
   } catch (error) {
