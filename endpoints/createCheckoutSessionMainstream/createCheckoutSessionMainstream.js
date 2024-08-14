@@ -2,8 +2,26 @@ require('dotenv').config();
 const express = require('express');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const nodemailer = require("nodemailer");
+const jsforce = require('jsforce');
 const bodyParser = require('body-parser');
 const router = express.Router();
+
+const conn = new jsforce.Connection({
+  oauth2: {
+    clientId: process.env.SALESFORCE_CLIENT_ID,
+    clientSecret: process.env.SALESFORCE_CLIENT_SECRET,
+  }
+});
+
+const loginToSalesforce = async () => {
+  try {
+    await conn.login(process.env.SALESFORCE_USERNAME, process.env.SALESFORCE_PASSWORD);
+    console.log("Salesforce login successful");
+  } catch (err) {
+    console.error("Salesforce login error:", err);
+    throw new Error("Failed to authenticate with Salesforce");
+  }
+};
 
 // Handle POST requests to the root of the router
 router.post("/", async (req, res) => {
@@ -81,9 +99,27 @@ router.post("/", async (req, res) => {
       }
     });
 
+    await loginToSalesforce();
+
+    const opportunityData = {
+      Name: `Opportunity for`,
+      StageName: 'Registration Completed',
+      CloseDate: new Date().toISOString().split('T')[0],
+      Amount: data.totalPrice,
+      Description: JSON.stringify(data)
+    };
+
+    conn.sobject("Opportunity").create(opportunityData, function(err, result) {
+      if (err || !result.success) {
+        console.error("Salesforce Opportunity creation error:", err);
+        return res.status(500).send("Salesforce Opportunity creation error");
+      }
+      console.log("Opportunity created with ID: ", result.id);
+    });
+
     res.json({ url: session.url });
   } catch (error) {
-    console.error("Error creating checkout session:", error);
+    console.error("Error processing request:", error);
     res.status(500).send("Internal Server Error");
   }
 });
