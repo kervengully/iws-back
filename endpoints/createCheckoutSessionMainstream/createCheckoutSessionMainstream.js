@@ -23,7 +23,7 @@ router.post("/", async (req, res) => {
           price_data: {
             currency: "gbp",
             product_data: {
-              name: "Registration Fee",
+              name: "Total Payment",
             },
             unit_amount: data.totalPrice * 100,
           },
