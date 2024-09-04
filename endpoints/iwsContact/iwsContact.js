@@ -76,7 +76,7 @@ const sendEmailNotification = async (webhookData) => {
       from: process.env.EMAIL_USER,
       to: "it@iwschool.co.uk, admissions@iwschool.co.uk, cigdem.karaman@iwschool.co.uk",
       subject: "Enquiry from IWS online school website",
-      html: `Enquiry data: ${jsonToHtmlTable(webhookData)}<br><br>Salesforce Lead created successfully.`,
+      html: `Enquiry data: ${jsonToHtmlTable(webhookData)}`,
     };
 
     await transporter.sendMail(mailOptions);
@@ -92,14 +92,14 @@ router.post("/", async (req, res) => {
   console.log("Received webhook data:", webhookData);
 
   try {
+    // Send an email notification
+    await sendEmailNotification(webhookData);
+    
     // Login to Salesforce
     await loginToSalesforce();
 
     // Create a Lead in Salesforce
     await createSalesforceLead(webhookData);
-
-    // Send an email notification
-    await sendEmailNotification(webhookData);
 
     // Send a successful response back to the client
     res.status(200).json({
