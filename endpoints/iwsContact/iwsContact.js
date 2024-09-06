@@ -7,16 +7,16 @@ const router = express.Router();
 const jsonToHtmlTable = (json) => {
   let table = '<table border="1" cellpadding="5" cellspacing="0">';
   for (let key in json) {
-    table += '<tr>';
+    table += "<tr>";
     table += `<th>${key}</th>`;
-    if (typeof json[key] === 'object') {
+    if (typeof json[key] === "object") {
       table += `<td>${jsonToHtmlTable(json[key])}</td>`;
     } else {
       table += `<td>${json[key]}</td>`;
     }
-    table += '</tr>';
+    table += "</tr>";
   }
-  table += '</table>';
+  table += "</table>";
   return table;
 };
 
@@ -25,12 +25,15 @@ const conn = new jsforce.Connection({
   oauth2: {
     clientId: process.env.SALESFORCE_CLIENT_ID,
     clientSecret: process.env.SALESFORCE_CLIENT_SECRET,
-  }
+  },
 });
 
 const loginToSalesforce = async () => {
   try {
-    await conn.login(process.env.SALESFORCE_USERNAME, process.env.SALESFORCE_PASSWORD);
+    await conn.login(
+      process.env.SALESFORCE_USERNAME,
+      process.env.SALESFORCE_PASSWORD
+    );
     console.log("Salesforce login successful");
   } catch (err) {
     console.error("Salesforce login error:", err);
@@ -41,13 +44,13 @@ const loginToSalesforce = async () => {
 const createSalesforceLead = async (webhookData) => {
   try {
     const result = await conn.sobject("Lead").create({
-      FirstName: webhookData.firstName,
-      LastName: webhookData.lastName,
-      Email: webhookData.email,
-      Phone: webhookData.phone_number,
-      Company: "Individual", // Salesforce requires a Company name for Lead
-      Description: webhookData.message,
-      Country: webhookData.country
+      FirstName: webhookData.parentFirstName,
+      LastName: webhookData.parentLastName,
+      Email: webhookData.parentEmail,
+      Phone: webhookData.parentPhoneNumber,
+      Company: webhookData.keystage, // Salesforce requires a Company name for Lead
+      Description: `${webhookData.message}\nStudent First Name: ${webhookData.studentFirstName}\nStudent Last Name: ${webhookData.studentLastName}\nStudent BirthDate: ${webhookData.studentDOB}`,
+      Country: webhookData.country,
     });
     if (!result.success) {
       throw new Error("Failed to create Lead in Salesforce");
@@ -94,7 +97,7 @@ router.post("/", async (req, res) => {
   try {
     // Send an email notification
     await sendEmailNotification(webhookData);
-    
+
     // Login to Salesforce
     await loginToSalesforce();
 
@@ -103,7 +106,8 @@ router.post("/", async (req, res) => {
 
     // Send a successful response back to the client
     res.status(200).json({
-      message: "Webhook received, Lead created in Salesforce, and email sent successfully",
+      message:
+        "Webhook received, Lead created in Salesforce, and email sent successfully",
     });
   } catch (error) {
     console.error("Error processing webhook:", error);
