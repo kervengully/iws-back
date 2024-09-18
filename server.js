@@ -11,6 +11,7 @@ const createCheckoutSession = require('./endpoints/createCheckoutSession/createC
 const createCheckoutSessionMainstream = require('./endpoints/createCheckoutSessionMainstream/createCheckoutSessionMainstream');
 const bitewiContact = require('./endpoints/bitewiContact/bitewiContact');
 const iwsContact = require('./endpoints/iwsContact/iwsContact');
+const evernorthContact = require('./endpoints/evernorthContact/evernorthContact');
 
 const safeEndpoint = (handler) => async (req, res, next) => {
   try {
@@ -25,6 +26,7 @@ app.use('/create-checkout-session', safeEndpoint(createCheckoutSession));
 app.use('/create-checkout-session-mainstream', safeEndpoint(createCheckoutSessionMainstream));
 app.use('/bitewi-contact', safeEndpoint(bitewiContact));
 app.use('/iws-contact', safeEndpoint(iwsContact));
+app.use('/evernorth-contact', safeEndpoint(evernorthContact));
 
 const PORT = process.env.PORT || 3500;
 app.listen(PORT, () => {
