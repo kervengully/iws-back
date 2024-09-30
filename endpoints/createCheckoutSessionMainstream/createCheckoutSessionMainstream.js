@@ -27,6 +27,10 @@ const loginToSalesforce = async () => {
 };
 
 router.post("/", async (req, res) => {
+  // Log request origin and headers
+  console.log("Request received from:", req.headers['origin']);
+  console.log("Request headers:", req.headers);
+
   const { data } = req.body;
   data.totalPrice = parseFloat(data.totalPrice);
 
