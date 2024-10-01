@@ -137,7 +137,7 @@ router.post("/", async (req, res) => {
           Email: data.student.email,
           Phone: data.student.phone,
           AccountId: accountResult.id,
-          Birthdate: data.student.dob,
+          // Birthdate: data.student.dob,
           // MailingStreet: data.student.address,
           // MailingCity: data.student.city,
           // MailingPostalCode: data.student.postal,
