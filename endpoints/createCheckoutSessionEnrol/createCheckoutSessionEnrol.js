@@ -28,7 +28,7 @@ const loginToSalesforce = async () => {
 
 router.post("/", async (req, res) => {
   // Log request origin and headers
-  console.log("Request received from:", req.headers['origin']);
+  console.log("Request received from:", req.headers["origin"]);
   console.log("Request headers:", req.headers);
 
   const { data } = req.body;
@@ -94,8 +94,8 @@ router.post("/", async (req, res) => {
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: "it@iwschool.co.uk",
-      subject: "New Registration Form Submission",
-      html: `<p>New registration form submitted:</p>${jsonToHtmlTable(data)}`,
+      subject: "New Enrolment Form Submission",
+      html: `<p>New enrolment form submitted:</p>${jsonToHtmlTable(data)}`,
     };
 
     transporter.sendMail(mailOptions, (error, info) => {
@@ -112,10 +112,10 @@ router.post("/", async (req, res) => {
       // Create Account in Salesforce
       const accountData = {
         Name: `${data.parent.firstName} ${data.parent.lastName}`,
-        Phone: data.parent.parentPhoneNumber,
+        Phone: data.parent.phone,
         BillingStreet: data.parent.address,
         BillingCity: data.parent.city,
-        BillingPostalCode: data.parent.postal,
+        BillingPostalCode: data.parent.postalCode,
         BillingCountry: data.parent.country,
         Parent_Email__c: data.parent.email,
         Gender__c: data.parent.gender,
@@ -135,11 +135,12 @@ router.post("/", async (req, res) => {
           FirstName: data.student.firstName,
           LastName: data.student.lastName,
           Email: data.student.email,
-          Phone: data.student.studentPhoneNumber,
+          Phone: data.student.phone,
           AccountId: accountResult.id,
-          MailingStreet: data.student.address,
-          MailingCity: data.student.city,
-          MailingPostalCode: data.student.postal,
+          Birthdate: data.student.dob,
+          // MailingStreet: data.student.address,
+          // MailingCity: data.student.city,
+          // MailingPostalCode: data.student.postal,
           MailingCountry: data.student.country,
         };
 
@@ -155,16 +156,17 @@ router.post("/", async (req, res) => {
           // Create Opportunity in Salesforce
           const opportunityData = {
             Name: `${data.parent.firstName} + ${data.student.firstName}`,
-            StageName: "Registration Completed",
+            StageName: "Registration Pending",
             CloseDate: new Date().toISOString().split("T")[0],
             Amount: data.totalPrice,
             Description: JSON.stringify(data),
             RecordTypeId: "012Pz000000joDZIAY",
-            Registration_Fee__c: "200",
-            YearGroup__c: data.selectedPackage,
-            Please_list_the_subject_s_you_would_lik__c: data.selectedSubjects
-              .map((subject) => subject.name)
+            // Registration_Fee__c: "200",
+            YearGroup__c: data.study.ageGroup,
+            Please_list_the_subject_s_you_would_lik__c: data.study.programmes
+              .map((programme) => programme.name)
               .join(", "),
+            Desired_Start_Date__c: data.study.desiredStartDate,
             AccountId: accountResult.id,
             Student_Name__c: contactResult.id,
           };

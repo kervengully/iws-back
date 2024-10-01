@@ -155,7 +155,7 @@ router.post("/", async (req, res) => {
           // Create Opportunity in Salesforce
           const opportunityData = {
             Name: `${data.parent.firstName} + ${data.student.firstName}`,
-            StageName: "Registration Completed",
+            StageName: "Registration Pending",
             CloseDate: new Date().toISOString().split("T")[0],
             Amount: data.totalPrice,
             Description: JSON.stringify(data),
