@@ -109,76 +109,44 @@ router.post("/", async (req, res) => {
     try {
       await loginToSalesforce();
 
-      // Create Account in Salesforce
-      const accountData = {
-        Name: `${data.parent.firstName} ${data.parent.lastName}`,
+      // Create Lead in Salesforce
+      const leadData = {
+        FirstName: data.parent.firstName,
+        LastName: data.parent.lastName,
+        Parent_First_Name__c: data.parent.firstName,
+        Parent_Last_Name__c: data.parent.lastName,
+        Email: data.parent.email,
         Phone: data.parent.parentPhoneNumber,
-        BillingStreet: data.parent.address,
-        BillingCity: data.parent.city,
-        BillingPostalCode: data.parent.postal,
-        BillingCountry: data.parent.country,
+        Parent_Address__c: data.parent.address,
+        City__c: data.parent.city,
+        Postal_Code__c: data.parent.postal,
+        Countryy__c: data.parent.country,
         Parent_Email__c: data.parent.email,
         Gender__c: data.parent.gender,
+        Company: data.selectedPackage,
+        // Description: JSON.stringify(data),
+        Form_Source__c: "IWS Application Form",
+        Student_First_Name__c: data.student.firstName,
+        Student_Last_Name__c: data.student.lastName,
+        Student_Email__c: data.student.email,
+        Student_Mobile_No__c: data.student.studentPhoneNumber,
+        Student_Address__c: data.student.address,
+        Student_Postal_Code__c: data.student.postal,
+        Student_Country__c: data.student.country,
+        Student_City__c: data.student.city,
+        Year_Group__c: data.selectedPackage,
+        Subjects__c: data.selectedSubjects.map((subject) => subject.name).join(", "),
+        Desired_Date__c: data.date.day + "/" + data.date.month + "/" + data.year,
+        Parent_Guardian__c: data.parent.chooseParent,
+        // Registration_Fee__c: "200",
+        // Amount__c: data.totalPrice,
       };
 
-      const accountResult = await conn.sobject("Account").create(accountData);
-      if (!accountResult.success) {
-        console.error(
-          "Salesforce Account creation error:",
-          accountResult.errors
-        );
+      const leadResult = await conn.sobject("Lead").create(leadData);
+      if (!leadResult.success) {
+        console.error("Salesforce Lead creation error:", leadResult.errors);
       } else {
-        console.log("Account created with ID:", accountResult.id);
-
-        // Create Contact in Salesforce
-        const contactData = {
-          FirstName: data.student.firstName,
-          LastName: data.student.lastName,
-          Email: data.student.email,
-          Phone: data.student.studentPhoneNumber,
-          AccountId: accountResult.id,
-          MailingStreet: data.student.address,
-          MailingCity: data.student.city,
-          MailingPostalCode: data.student.postal,
-          MailingCountry: data.student.country,
-        };
-
-        const contactResult = await conn.sobject("Contact").create(contactData);
-        if (!contactResult.success) {
-          console.error(
-            "Salesforce Contact creation error:",
-            contactResult.errors
-          );
-        } else {
-          console.log("Contact created with ID:", contactResult.id);
-
-          // Create Opportunity in Salesforce
-          const opportunityData = {
-            Name: `${data.parent.firstName} + ${data.student.firstName}`,
-            StageName: "Registration Pending",
-            CloseDate: new Date().toISOString().split("T")[0],
-            Amount: data.totalPrice,
-            Description: JSON.stringify(data),
-            RecordTypeId: "012Pz000000joDZIAY",
-            Registration_Fee__c: "200",
-            YearGroup__c: data.selectedPackage,
-            Please_list_the_subject_s_you_would_lik__c: data.selectedSubjects
-              .map((subject) => subject.name)
-              .join(", "),
-            AccountId: accountResult.id,
-            Student_Name__c: contactResult.id,
-          };
-
-          conn
-            .sobject("Opportunity")
-            .create(opportunityData, function (err, result) {
-              if (err || !result.success) {
-                console.error("Salesforce Opportunity creation error:", err);
-              } else {
-                console.log("Opportunity created with ID:", result.id);
-              }
-            });
-        }
+        console.log("Lead created with ID:", leadResult.id);
       }
     } catch (sfError) {
       console.error("Error sending data to Salesforce:", sfError);
