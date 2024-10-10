@@ -50,7 +50,7 @@ const createSalesforceLead = async (webhookData) => {
       Phone: webhookData.parentPhoneNumber,
       Company: webhookData.keystage, // Salesforce requires a Company name for Lead
       Description: `${webhookData.message}\nStudent First Name: ${webhookData.studentFirstName}\nStudent Last Name: ${webhookData.studentLastName}\nStudent BirthDate: ${webhookData.studentDOB}\nSource: ${webhookData.fullUrl}`,
-      Country: webhookData.country,
+      Country__c: webhookData.country,
     });
     if (!result.success) {
       throw new Error("Failed to create Lead in Salesforce");
