@@ -49,7 +49,7 @@ const createSalesforceLead = async (webhookData) => {
       Email: webhookData.parentEmail,
       Phone: webhookData.parentPhoneNumber,
       Company: webhookData.keystage, // Salesforce requires a Company name for Lead
-      Description: `${webhookData.message}\nStudent First Name: ${webhookData.studentFirstName}\nStudent Last Name: ${webhookData.studentLastName}\nStudent BirthDate: ${webhookData.studentDOB}`,
+      Description: `${webhookData.message}\nStudent First Name: ${webhookData.studentFirstName}\nStudent Last Name: ${webhookData.studentLastName}\nStudent BirthDate: ${webhookData.studentDOB}\nSource: ${webhookData.fullUrl}`,
       Country: webhookData.country,
     });
     if (!result.success) {
@@ -75,9 +75,16 @@ const sendEmailNotification = async (webhookData) => {
       },
     });
 
+    let recipients = "it@iwschool.co.uk, admissions@iwschool.co.uk, cigdem.karaman@iwschool.co.uk";
+    
+    // If the fullUrl is "/partners/cs", add farhaan@iwschool.co.uk to the recipients list
+    if (webhookData.fullUrl === "/partners/cs") {
+      recipients += ", farhaan@iwschool.co.uk";
+    }
+
     const mailOptions = {
       from: process.env.EMAIL_USER,
-      to: "it@iwschool.co.uk, admissions@iwschool.co.uk, cigdem.karaman@iwschool.co.uk",
+      to: recipients,
       subject: "Enquiry from IWS online school website",
       html: `Enquiry data: ${jsonToHtmlTable(webhookData)}`,
     };
