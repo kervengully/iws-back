@@ -49,7 +49,7 @@ const createSalesforceLead = async (webhookData) => {
       Email: webhookData.parentEmail,
       Phone: webhookData.parentPhoneNumber,
       Company: webhookData.keystage, // Salesforce requires a Company name for Lead
-      Description: `${webhookData.message}\nStudent First Name: ${webhookData.studentFirstName}\nStudent Last Name: ${webhookData.studentLastName}\nStudent BirthDate: ${webhookData.studentDOB}\nSource: ${webhookData.fullUrl}`,
+      Description: `${webhookData.message}\nStudent First Name: ${webhookData.studentFirstName}\nStudent Last Name: ${webhookData.studentLastName}\nStudent BirthDate: ${webhookData.studentDOB}\nSource: ${webhookData.initialUrl}`,
       Country__c: webhookData.country,
     });
     if (!result.success) {
