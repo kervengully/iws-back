@@ -93,7 +93,7 @@ router.post("/", async (req, res) => {
 
     const mailOptions = {
       from: process.env.EMAIL_USER,
-      to: "it@iwschool.co.uk",
+      to: "it@iwschool.co.uk, cigdem.karaman@iwschool.co.uk, ozlem.ulusoy@iwschool.co.uk, admissions@iwschool.co.uk",
       subject: "New Enrolment Form Submission",
       html: `<p>New enrolment form submitted:</p>${jsonToHtmlTable(data)}`,
     };
