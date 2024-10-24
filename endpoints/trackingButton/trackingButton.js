@@ -8,7 +8,7 @@ const lockFile = require('proper-lockfile');
 const COUNTER_FILE = path.join(__dirname, 'counter.txt');
 
 // URL to redirect users after tracking
-const REDIRECT_URL = 'https://www.yourfinaldestination.com'; // Replace with your actual URL
+const REDIRECT_URL = 'https://bestys.co/default/competition/details?productId=55'; // Replace with your actual URL
 
 // Function to handle tracking and redirection
 const trackClick = async (req, res, next) => {
