@@ -16,6 +16,7 @@ const evernorthContact = require('./endpoints/evernorthContact/evernorthContact'
 
 // Import trackingButton module
 const trackingButton = require('./endpoints/trackingButton/trackingButton');
+const alevelButton = require('./endpoints/alevelButton/alevelButton');
 
 const safeEndpoint = (handler) => async (req, res, next) => {
   try {
@@ -36,7 +37,9 @@ app.use('/evernorth-contact', safeEndpoint(evernorthContact));
 
 // New endpoints for tracking button clicks
 app.use('/scholarship-button', safeEndpoint(trackingButton.trackClick));
+app.use('/alevel-button', safeEndpoint(alevelButton.trackClick));
 app.use('/get-click-count', safeEndpoint(trackingButton.getClickCount));
+app.use('/get-click-count-alevel', safeEndpoint(alevelButton.getClickCount));
 
 const PORT = process.env.PORT || 3500;
 app.listen(PORT, () => {
