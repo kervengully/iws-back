@@ -75,11 +75,14 @@ const sendEmailNotification = async (webhookData) => {
       },
     });
 
-    let recipients = "it@iwschool.co.uk, admissions@iwschool.co.uk, cigdem.karaman@iwschool.co.uk";
-    
-    // If the fullUrl is "/partners/cs", add farhaan@iwschool.co.uk to the recipients list
-    if (webhookData.fullUrl === "/partners/cs") {
+    let recipients =
+      "it@iwschool.co.uk, admissions@iwschool.co.uk, cigdem.karaman@iwschool.co.uk";
+
+    // If the initialUrl is "/partners/cs", add farhaan@iwschool.co.uk to the recipients list
+    if (webhookData.initialUrl.includes("partners/cs")) {
       recipients += ", farhaan@iwschool.co.uk";
+    } else if (webhookData.initialUrl.includes("partners/omb")) {
+      recipients += ", umar@iwschool.co.uk, aisha@iwschool.co.uk, iwsnigeria@iwschool.co.uk";
     }
 
     const mailOptions = {
