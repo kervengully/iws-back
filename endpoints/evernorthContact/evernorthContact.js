@@ -34,7 +34,7 @@ const sendEmailNotification = async (webhookData) => {
 
     const mailOptions = {
       from: process.env.EMAIL_USER,
-      to: "it@iwschool.co.uk, gokay.burak@evernorthedu.com, cigdem.karaman@evernorthedu.com",
+      to: "it@iwschool.co.uk, gokay.burak@evernorthedu.com, cigdem.karaman@evernorthedu.com, yilmaz.ucak@evernorthedu.com",
     //   to: "it@iwschool.co.uk, admissions@iwschool.co.uk, cigdem.karaman@iwschool.co.uk",
       subject: "Enquiry from EverNorth website",
       html: `Enquiry data: ${jsonToHtmlTable(webhookData)}`,
