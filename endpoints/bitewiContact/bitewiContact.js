@@ -11,8 +11,8 @@ router.post('/', (req, res) => {
     port: 587,
     secure: false,
     auth: {
-      user: "gullyyevv@gmail.com",
-      pass: "fjmnhtrawtscugwm",
+      user: "iws@iwschool.co.uk",
+      pass: "cbrfcouineuuwyhm",
     },
   });
 
