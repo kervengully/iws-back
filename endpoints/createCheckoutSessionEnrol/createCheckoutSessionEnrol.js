@@ -56,7 +56,7 @@ router.post("/", async (req, res) => {
       ],
       mode: "payment",
       customer_email: data.parent.email,
-      success_url: "https://iwsonlineschool.co.uk/thank-you",
+      success_url: "https://iwsonlineschool.co.uk/thank-you-enrol",
       cancel_url: `https://iwsonlineschool.co.uk/`,
       allow_promotion_codes: true,
       invoice_creation: {
