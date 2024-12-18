@@ -12,6 +12,7 @@ const createCheckoutSessionMainstream = require('./endpoints/createCheckoutSessi
 const createCheckoutSessionEnrol = require('./endpoints/createCheckoutSessionEnrol/createCheckoutSessionEnrol');
 const bitewiContact = require('./endpoints/bitewiContact/bitewiContact');
 const iwsContact = require('./endpoints/iwsContact/iwsContact');
+const iwsHeroContact = require('./endpoints/iwsHeroContact/iwsHeroContact');
 const evernorthContact = require('./endpoints/evernorthContact/evernorthContact');
 
 // Import trackingButton module
@@ -33,6 +34,7 @@ app.use('/create-checkout-session-mainstream', safeEndpoint(createCheckoutSessio
 app.use('/create-checkout-session-enrol', safeEndpoint(createCheckoutSessionEnrol));
 app.use('/bitewi-contact', safeEndpoint(bitewiContact));
 app.use('/iws-contact', safeEndpoint(iwsContact));
+app.use('/iws-herocontact', safeEndpoint(iwsHeroContact));
 app.use('/evernorth-contact', safeEndpoint(evernorthContact));
 
 // New endpoints for tracking button clicks
