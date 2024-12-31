@@ -2,7 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const nodemailer = require("nodemailer");
 const jsforce = require("jsforce");
-const axios = require("axios");
+const https = require("https");
 const router = express.Router();
 
 const jsonToHtmlTable = (json) => {
@@ -77,7 +77,6 @@ const sendEmailNotification = async (webhookData) => {
     let recipients =
       "it@iwschool.co.uk, admissions@iwschool.co.uk, cigdem.karaman@iwschool.co.uk";
 
-    // If the initialUrl is "/partners/cs", add farhaan@iwschool.co.uk to the recipients list
     if (webhookData.initialUrl.includes("partners/cs")) {
       recipients += ", farhaan@iwschool.co.uk";
     } else if (webhookData.initialUrl.includes("partners/omb")) {
@@ -99,28 +98,44 @@ const sendEmailNotification = async (webhookData) => {
   }
 };
 
-const verifyRecaptcha = async (token) => {
-  try {
-    const response = await axios.post(
-      `https://www.google.com/recaptcha/api/siteverify`,
-      null,
-      {
-        params: {
-          secret: process.env.RECAPTCHA_SECRET_KEY, // Your reCAPTCHA secret key
-          response: token,
-        },
-      }
-    );
-    return response.data.success;
-  } catch (error) {
-    console.error("Error verifying reCAPTCHA:", error);
-    throw new Error("Failed to verify reCAPTCHA");
-  }
+const verifyRecaptcha = (token) => {
+  return new Promise((resolve, reject) => {
+    const secretKey = process.env.RECAPTCHA_SECRET_KEY;
+    const url = `/recaptcha/api/siteverify?secret=${secretKey}&response=${token}`;
+
+    const options = {
+      hostname: "www.google.com",
+      path: url,
+      method: "POST",
+    };
+
+    const req = https.request(options, (res) => {
+      let data = "";
+      res.on("data", (chunk) => {
+        data += chunk;
+      });
+
+      res.on("end", () => {
+        try {
+          const parsedData = JSON.parse(data);
+          resolve(parsedData.success);
+        } catch (err) {
+          reject(new Error("Failed to parse reCAPTCHA response"));
+        }
+      });
+    });
+
+    req.on("error", (error) => {
+      reject(error);
+    });
+
+    req.end();
+  });
 };
 
 router.post("/", async (req, res) => {
   const webhookData = req.body;
-  const recaptchaToken = webhookData.recaptchaToken; // Token sent from the client
+  const recaptchaToken = webhookData.recaptchaToken;
 
   console.log("Received webhook data:", webhookData);
 
