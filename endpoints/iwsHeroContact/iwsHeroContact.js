@@ -2,6 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const nodemailer = require("nodemailer");
 const jsforce = require("jsforce");
+const axios = require("axios");
 const router = express.Router();
 
 const jsonToHtmlTable = (json) => {
@@ -44,13 +45,11 @@ const loginToSalesforce = async () => {
 const createSalesforceLead = async (webhookData) => {
   try {
     const result = await conn.sobject("Lead").create({
-    //   FirstName: webhookData.parentFirstName,
       LastName: webhookData.FullName,
       Email: webhookData.Email,
       Phone: webhookData.contactPhoneNumber,
       Company: "IWS Short Contact", // Salesforce requires a Company name for Lead
       Description: `Page Source: ${webhookData.fullUrl}\nInitial Source: ${webhookData.initialUrl}`,
-    //   Country__c: webhookData.country,
     });
     if (!result.success) {
       throw new Error("Failed to create Lead in Salesforce");
@@ -100,11 +99,38 @@ const sendEmailNotification = async (webhookData) => {
   }
 };
 
+const verifyRecaptcha = async (token) => {
+  try {
+    const response = await axios.post(
+      `https://www.google.com/recaptcha/api/siteverify`,
+      null,
+      {
+        params: {
+          secret: process.env.RECAPTCHA_SECRET_KEY, // Your reCAPTCHA secret key
+          response: token,
+        },
+      }
+    );
+    return response.data.success;
+  } catch (error) {
+    console.error("Error verifying reCAPTCHA:", error);
+    throw new Error("Failed to verify reCAPTCHA");
+  }
+};
+
 router.post("/", async (req, res) => {
   const webhookData = req.body;
+  const recaptchaToken = webhookData.recaptchaToken; // Token sent from the client
+
   console.log("Received webhook data:", webhookData);
 
   try {
+    // Verify reCAPTCHA
+    const isRecaptchaValid = await verifyRecaptcha(recaptchaToken);
+    if (!isRecaptchaValid) {
+      return res.status(400).json({ message: "Invalid reCAPTCHA token" });
+    }
+
     // Send an email notification
     await sendEmailNotification(webhookData);
 
