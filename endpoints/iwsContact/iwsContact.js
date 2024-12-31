@@ -2,6 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const nodemailer = require("nodemailer");
 const jsforce = require("jsforce");
+const fetch = require("node-fetch"); // If fetch is not available
 const router = express.Router();
 
 const jsonToHtmlTable = (json) => {
@@ -20,7 +21,16 @@ const jsonToHtmlTable = (json) => {
   return table;
 };
 
-// Salesforce connection setup
+const verifyRecaptcha = async (token) => {
+  const secretKey = process.env.RECAPTCHA_SECRET_KEY;
+  const response = await fetch(
+    `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${token}`,
+    { method: "POST" }
+  );
+  const data = await response.json();
+  return data.success;
+};
+
 const conn = new jsforce.Connection({
   oauth2: {
     clientId: process.env.SALESFORCE_CLIENT_ID,
@@ -48,7 +58,7 @@ const createSalesforceLead = async (webhookData) => {
       LastName: webhookData.parentLastName,
       Email: webhookData.parentEmail,
       Phone: webhookData.parentPhoneNumber,
-      Company: webhookData.keystage, // Salesforce requires a Company name for Lead
+      Company: webhookData.keystage,
       Description: `${webhookData.message}\nStudent First Name: ${webhookData.studentFirstName}\nStudent Last Name: ${webhookData.studentLastName}\nStudent BirthDate: ${webhookData.studentDOB}\nPage Source: ${webhookData.fullUrl}/nInitial Source: ${webhookData.initialUrl}`,
       Country__c: webhookData.country,
     });
@@ -65,7 +75,7 @@ const createSalesforceLead = async (webhookData) => {
 
 const sendEmailNotification = async (webhookData) => {
   try {
-    let transporter = nodemailer.createTransport({
+    const transporter = nodemailer.createTransport({
       host: "smtp.gmail.com",
       port: 587,
       secure: false,
@@ -78,7 +88,6 @@ const sendEmailNotification = async (webhookData) => {
     let recipients =
       "it@iwschool.co.uk, admissions@iwschool.co.uk, cigdem.karaman@iwschool.co.uk";
 
-    // If the initialUrl is "/partners/cs", add farhaan@iwschool.co.uk to the recipients list
     if (webhookData.initialUrl.includes("partners/cs")) {
       recipients += ", farhaan@iwschool.co.uk";
     } else if (webhookData.initialUrl.includes("partners/omb")) {
@@ -105,6 +114,19 @@ router.post("/", async (req, res) => {
   console.log("Received webhook data:", webhookData);
 
   try {
+    const recaptchaToken = webhookData.recaptchaToken;
+
+    // Verify reCAPTCHA
+    const isRecaptchaValid = await verifyRecaptcha(recaptchaToken);
+    if (!isRecaptchaValid) {
+      return res.status(400).json({ message: "Invalid reCAPTCHA token" });
+    }
+
+    // Validate required fields
+    if (!webhookData.parentFirstName || !webhookData.parentEmail) {
+      return res.status(400).json({ message: "Required fields missing" });
+    }
+
     // Send an email notification
     await sendEmailNotification(webhookData);
 
@@ -114,10 +136,8 @@ router.post("/", async (req, res) => {
     // Create a Lead in Salesforce
     await createSalesforceLead(webhookData);
 
-    // Send a successful response back to the client
     res.status(200).json({
-      message:
-        "Webhook received, Lead created in Salesforce, and email sent successfully",
+      message: "Webhook received, Lead created in Salesforce, and email sent successfully",
     });
   } catch (error) {
     console.error("Error processing webhook:", error);
