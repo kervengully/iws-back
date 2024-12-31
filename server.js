@@ -10,7 +10,7 @@ app.use(cors());
 const createCheckoutSession = require('./endpoints/createCheckoutSession/createCheckoutSession');
 const createCheckoutSessionMainstream = require('./endpoints/createCheckoutSessionMainstream/createCheckoutSessionMainstream');
 const createCheckoutSessionEnrol = require('./endpoints/createCheckoutSessionEnrol/createCheckoutSessionEnrol');
-const bitewiContact = require('./endpoints/bitewiContact/bitewiContact');
+// const bitewiContact = require('./endpoints/bitewiContact/bitewiContact');
 const iwsContact = require('./endpoints/iwsContact/iwsContact');
 const iwsHeroContact = require('./endpoints/iwsHeroContact/iwsHeroContact');
 const evernorthContact = require('./endpoints/evernorthContact/evernorthContact');
@@ -32,7 +32,7 @@ const safeEndpoint = (handler) => async (req, res, next) => {
 app.use('/create-checkout-session', safeEndpoint(createCheckoutSession));
 app.use('/create-checkout-session-mainstream', safeEndpoint(createCheckoutSessionMainstream));
 app.use('/create-checkout-session-enrol', safeEndpoint(createCheckoutSessionEnrol));
-app.use('/bitewi-contact', safeEndpoint(bitewiContact));
+// app.use('/bitewi-contact', safeEndpoint(bitewiContact));
 app.use('/iws-contact', safeEndpoint(iwsContact));
 app.use('/iws-herocontact', safeEndpoint(iwsHeroContact));
 app.use('/evernorth-contact', safeEndpoint(evernorthContact));
