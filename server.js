@@ -5,15 +5,7 @@ const cors = require("cors");
 const app = express();
 app.use(express.static("public"));
 app.use(bodyParser.json());
-// app.use(cors());
-app.use(
-  cors({
-    origin: "*", // Allow all origins (not secure for production)
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-  })
-);
-
+app.use(cors());
 
 const createCheckoutSession = require('./endpoints/createCheckoutSession/createCheckoutSession');
 const createCheckoutSessionMainstream = require('./endpoints/createCheckoutSessionMainstream/createCheckoutSessionMainstream');
